@@ -1,0 +1,19 @@
+[package]
+name = "waypoint"
+version = "0.1.0"
+description = "A private personal goal tracker with nested steps and calendar planning."
+authors = ["Waypoint"]
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "waypoint_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = [] }

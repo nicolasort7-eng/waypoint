@@ -1,0 +1,17 @@
+{
+  "name": "Waypoint — Personal Goal Tracker",
+  "short_name": "Waypoint",
+  "description": "Turn meaningful goals into clear, manageable next steps.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2f0ea",
+  "theme_color": "#f5f3ee",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
