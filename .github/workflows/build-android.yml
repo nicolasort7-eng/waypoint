@@ -1,0 +1,71 @@
+name: Build Waypoint Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    name: Android installable APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download the Waypoint source
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Android tools
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-35" "platforms;android-36" "build-tools;35.0.0" "build-tools;36.0.0" "ndk;28.2.13676358"
+          echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/28.2.13676358" >> "$GITHUB_ENV"
+
+      - name: Install Rust for Android
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi
+
+      - name: Install Waypoint dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create application icons
+        run: pnpm tauri icon public/favicon.svg
+
+      - name: Create the Android project
+        run: pnpm tauri android init --ci --skip-targets-install
+
+      - name: Check the Waypoint interface
+        run: pnpm typecheck
+
+      - name: Build the installable APK
+        run: pnpm tauri android build --debug --apk --target aarch64 --target armv7 --ci
+
+      - name: Save the APK for download
+        uses: actions/upload-artifact@v4
+        with:
+          name: Waypoint-Android-APK
+          path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 30
